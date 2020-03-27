@@ -94,6 +94,61 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  List<Widget> _buildLandscapeContent(
+    AppBar appBar,
+    MediaQueryData mediaQuery,
+    Widget txListWidget,
+  ) {
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'show chart',
+            style: Theme.of(context).textTheme.title,
+          ),
+          Switch.adaptive(
+            //gives diffrent looks on IOS and Android
+            activeColor: Theme.of(context).accentColor,
+            value: _showChart,
+            onChanged: (val) {
+              setState(() {
+                _showChart = val;
+              });
+            },
+          ),
+        ],
+      ),
+      _showChart
+          ? Container(
+              height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height -
+                      mediaQuery.padding.top) *
+                  0.7,
+              child: Chart(_recentTransactions),
+            )
+          : txListWidget
+    ];
+  }
+
+  List<Widget> _buildPortraitContent(
+    AppBar appBar,
+    MediaQueryData mediaQuery,
+    Widget txListWidget,
+  ) {
+    return [
+      Container(
+        height: (MediaQuery.of(context).size.height -
+                //the entire height of the device-appbar height-system status bar height
+                appBar.preferredSize.height -
+                mediaQuery.padding.top) *
+            0.3,
+        child: Chart(_recentTransactions),
+      ),
+      txListWidget,
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -137,45 +192,17 @@ class _MyHomePageState extends State<MyHomePage> {
           //mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             if (isLandscape)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'show chart',
-                    style: Theme.of(context).textTheme.title,
-                  ),
-                  Switch.adaptive(
-                    //gives diffrent looks on IOS and Android
-                    activeColor: Theme.of(context).accentColor,
-                    value: _showChart,
-                    onChanged: (val) {
-                      setState(() {
-                        _showChart = val;
-                      });
-                    },
-                  ),
-                ],
+              ..._buildLandscapeContent(
+                appBar,
+                mediaQuery,
+                txListWidget,
               ),
             if (!isLandscape)
-              Container(
-                height: (MediaQuery.of(context).size.height -
-                        //the entire height of the device-appbar height-system status bar height
-                        appBar.preferredSize.height -
-                        mediaQuery.padding.top) *
-                    0.3,
-                child: Chart(_recentTransactions),
+              ..._buildPortraitContent(
+                appBar,
+                mediaQuery,
+                txListWidget,
               ),
-            if (!isLandscape) txListWidget,
-            if (isLandscape)
-              _showChart
-                  ? Container(
-                      height: (MediaQuery.of(context).size.height -
-                              appBar.preferredSize.height -
-                              mediaQuery.padding.top) *
-                          0.7,
-                      child: Chart(_recentTransactions),
-                    )
-                  : txListWidget
           ],
         ),
       ),
